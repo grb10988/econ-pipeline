@@ -225,3 +225,6 @@ airflow/.env
 # DuckDB Data
 data/*.duckdb
 econ_dbt/dev.duckdb
+
+# DBT
+econ_dbt/.user.yml
