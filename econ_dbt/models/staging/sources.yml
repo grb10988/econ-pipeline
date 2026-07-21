@@ -1,0 +1,7 @@
+version: 2
+
+sources:
+  - name: fred_raw
+    schema: main
+    tables:
+      - name: raw_fred_observations

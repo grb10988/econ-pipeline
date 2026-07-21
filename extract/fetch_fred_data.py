@@ -77,7 +77,7 @@ def fetch_series(series_id: str, api_key: str) -> pd.DataFrame:
     return df[["series_id", "date", "value", "fetched_at"]]
 
 def load_to_duckdb(df: pd.DataFrame) -> None:
-    """Append fetched observations into the raw DuckDb table."""
+    """Replace observations for the given series in DuckDB (idempotent load)."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     con = duckdb.connect(DB_PATH)
 
@@ -89,6 +89,12 @@ def load_to_duckdb(df: pd.DataFrame) -> None:
             "fetched_at" TIMESTAMP
         )
     """)
+
+    series_ids = df["series_id"].unique().tolist()
+    con.execute(
+        f"DELETE FROM {RAW_TABLE_NAME} WHERE series_id IN ({','.join(['?'] * len(series_ids))})",
+        series_ids,
+    )
 
     con.register("df_view", df)
     con.execute(f"INSERT INTO {RAW_TABLE_NAME} SELECT * FROM df_view")
